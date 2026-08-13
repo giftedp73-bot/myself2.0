@@ -16,8 +16,9 @@ export const Route = createFileRoute("/calendar")({
       },
     ],
   }),
-  component: CalendarPage;
+  component: CalendarPage,
 });
+
 
 function CalendarPage() {
   return (
