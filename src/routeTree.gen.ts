@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as MemoryRouteImport } from './routes/memory'
 import { Route as PricingRouteImport } from './routes/pricing'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,11 @@ const HomeRoute = HomeRouteImport.update({
   path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MemoryRoute = MemoryRouteImport.update({
+  id: '/memory',
+  path: '/memory',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRoute
   '/chat': typeof ChatRoute
   '/home': typeof HomeRoute
+  '/memory': typeof MemoryRoute
   '/pricing': typeof PricingRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/chat': typeof ChatRoute
   '/home': typeof HomeRoute
+  '/memory': typeof MemoryRoute
   '/pricing': typeof PricingRoute
 }
 export interface FileRoutesById {
@@ -79,14 +87,30 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/chat': typeof ChatRoute
   '/home': typeof HomeRoute
+  '/memory': typeof MemoryRoute
   '/pricing': typeof PricingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/about' | '/auth' | '/calendar' | '/chat' | '/home' | '/pricing'
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/calendar'
+    | '/chat'
+    | '/home'
+    | '/memory'
+    | '/pricing'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/auth' | '/calendar' | '/chat' | '/home' | '/pricing'
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/calendar'
+    | '/chat'
+    | '/home'
+    | '/memory'
+    | '/pricing'
   id:
     | '__root__'
     | '/'
@@ -95,6 +119,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/chat'
     | '/home'
+    | '/memory'
     | '/pricing'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +130,7 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   ChatRoute: typeof ChatRoute
   HomeRoute: typeof HomeRoute
+  MemoryRoute: typeof MemoryRoute
   PricingRoute: typeof PricingRoute
 }
 
@@ -152,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/memory': {
+      id: '/memory'
+      path: '/memory'
+      fullPath: '/memory'
+      preLoaderRoute: typeof MemoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
@@ -169,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   ChatRoute: ChatRoute,
   HomeRoute: HomeRoute,
+  MemoryRoute: MemoryRoute,
   PricingRoute: PricingRoute,
 }
 export const routeTree = rootRouteImport
