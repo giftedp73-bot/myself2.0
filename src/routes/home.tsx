@@ -76,31 +76,25 @@ function Ring({ pct }: { pct: number }) {
   const r = 26;
   const c = 2 * Math.PI * r;
   return (
-    <svg viewBox="0 0 64 64" className="h-16 w-16 shrink-0 -rotate-90">
-      <circle cx="32" cy="32" r={r} fill="none" stroke="var(--color-secondary)" strokeWidth="5" />
-      <circle
-        cx="32"
-        cy="32"
-        r={r}
-        fill="none"
-        stroke="var(--color-primary)"
-        strokeWidth="5"
-        strokeLinecap="round"
-        strokeDasharray={`${(pct / 100) * c} ${c}`}
-      />
-      <text
-        x="32"
-        y="32"
-        textAnchor="middle"
-        dominantBaseline="central"
-        className="rotate-90 fill-foreground text-[14px]"
-        transform="rotate(90 32 32)"
-      >
-        {pct}%
-      </text>
-    </svg>
+    <div className="relative h-16 w-16 shrink-0">
+      <svg viewBox="0 0 64 64" className="h-16 w-16 -rotate-90">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="var(--color-secondary)" strokeWidth="5" />
+        <circle
+          cx="32"
+          cy="32"
+          r={r}
+          fill="none"
+          stroke="var(--color-primary)"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeDasharray={`${(pct / 100) * c} ${c}`}
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-sm">{pct}%</span>
+    </div>
   );
 }
+
 
 function HomePage() {
   return (
