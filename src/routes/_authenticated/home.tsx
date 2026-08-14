@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { AppLayout } from "@/components/app-layout";
 
-export const Route = createFileRoute("/home")({
+export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({
     meta: [
       { title: "Home — me2.0" },

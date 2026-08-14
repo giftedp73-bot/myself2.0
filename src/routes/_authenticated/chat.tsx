@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Mic, Plus, Send, Sparkles, Type } from "lucide-react";
 import { AppLayout } from "@/components/app-layout";
 
-export const Route = createFileRoute("/chat")({
+export const Route = createFileRoute("/_authenticated/chat")({
   head: () => ({
     meta: [
       { title: "Chat — me2.0" },
