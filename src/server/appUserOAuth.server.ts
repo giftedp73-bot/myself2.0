@@ -46,8 +46,8 @@ export async function startConnectorOAuthFlow(
     appUserId: userId,
     clientAPIKey,
     returnUrl,
-    connectionAPIKey: existing ?? undefined,
-    credentialsConfiguration: { scopes: SCOPES[connectorId] },
+    ...(existing ? { connectionAPIKey: existing } : {}),
+    credentialsConfiguration: { scopes: SCOPES[connectorId] ?? BASE_SCOPES },
   });
   return authorizationUrl;
 }
