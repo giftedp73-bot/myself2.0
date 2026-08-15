@@ -54,23 +54,12 @@ const goals = [
 
 const priorities = ["Business", "Health", "Family"];
 
-const inbox = [
-  {
-    from: "Jobgether via LinkedIn",
-    subject: "Jobgether Newsletter : Senior Job Search Strategy: Fix the Sig…",
-    preview: "Senior Job Search Strategy: Fix the Signal Problem",
-  },
-  {
-    from: "Rue La La",
-    subject: "Restocked Christian Louboutin with $599.99 Styles • Style by …",
-    preview: "Up to 30% Off Pre-Loved Luxe • The Special-Size Shoe Shop • Bottoms…",
-  },
-  {
-    from: "Google",
-    subject: "Security alert for me2point00@gmail.com",
-    preview: "A new sign-in on Chrome — review it if this wasn't you.",
-  },
-];
+function formatTime(iso: string | null) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 
 function Ring({ pct }: { pct: number }) {
   const r = 26;
