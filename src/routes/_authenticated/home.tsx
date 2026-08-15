@@ -11,7 +11,10 @@ import {
   Star,
   Calendar as CalendarIcon,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/app-layout";
+import { getMyProfile } from "@/lib/briefing.functions";
+import { getInboxSummary, getTodayCalendar } from "@/lib/dashboard.functions";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({
