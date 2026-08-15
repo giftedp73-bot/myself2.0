@@ -85,12 +85,28 @@ function Ring({ pct }: { pct: number }) {
 }
 
 
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
 function HomePage() {
+  const profile = useQuery({ queryKey: ["profile"], queryFn: () => getMyProfile() });
+  const calendar = useQuery({ queryKey: ["calendar"], queryFn: () => getTodayCalendar() });
+  const inbox = useQuery({ queryKey: ["inbox"], queryFn: () => getInboxSummary() });
+  const events = calendar.data?.events ?? [];
+  const messages = inbox.data?.messages ?? [];
+  const firstName = profile.data?.display_name?.split(" ")[0] ?? "there";
+
   return (
     <AppLayout>
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
-          <h1 className="text-4xl md:text-5xl">Good evening, gifted.</h1>
+          <h1 className="text-4xl md:text-5xl">
+            {greeting()}, {firstName}.
+          </h1>
           <p className="mt-3 text-muted-foreground">Here's how your day is shaping up.</p>
         </div>
         <div className="flex items-center gap-5 rounded-3xl border border-border bg-card px-6 py-4">
