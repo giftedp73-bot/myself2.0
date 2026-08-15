@@ -11,7 +11,10 @@ import {
   Star,
   Calendar as CalendarIcon,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/app-layout";
+import { getMyProfile } from "@/lib/briefing.functions";
+import { getInboxSummary, getTodayCalendar } from "@/lib/dashboard.functions";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({
@@ -54,23 +57,12 @@ const goals = [
 
 const priorities = ["Business", "Health", "Family"];
 
-const inbox = [
-  {
-    from: "Jobgether via LinkedIn",
-    subject: "Jobgether Newsletter : Senior Job Search Strategy: Fix the Sig…",
-    preview: "Senior Job Search Strategy: Fix the Signal Problem",
-  },
-  {
-    from: "Rue La La",
-    subject: "Restocked Christian Louboutin with $599.99 Styles • Style by …",
-    preview: "Up to 30% Off Pre-Loved Luxe • The Special-Size Shoe Shop • Bottoms…",
-  },
-  {
-    from: "Google",
-    subject: "Security alert for me2point00@gmail.com",
-    preview: "A new sign-in on Chrome — review it if this wasn't you.",
-  },
-];
+function formatTime(iso: string | null) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 
 function Ring({ pct }: { pct: number }) {
   const r = 26;
@@ -96,12 +88,28 @@ function Ring({ pct }: { pct: number }) {
 }
 
 
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
 function HomePage() {
+  const profile = useQuery({ queryKey: ["profile"], queryFn: () => getMyProfile() });
+  const calendar = useQuery({ queryKey: ["calendar"], queryFn: () => getTodayCalendar() });
+  const inbox = useQuery({ queryKey: ["inbox"], queryFn: () => getInboxSummary() });
+  const events = calendar.data?.events ?? [];
+  const messages = inbox.data?.messages ?? [];
+  const firstName = profile.data?.display_name?.split(" ")[0] ?? "there";
+
   return (
     <AppLayout>
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
-          <h1 className="text-4xl md:text-5xl">Good evening, gifted.</h1>
+          <h1 className="text-4xl md:text-5xl">
+            {greeting()}, {firstName}.
+          </h1>
           <p className="mt-3 text-muted-foreground">Here's how your day is shaping up.</p>
         </div>
         <div className="flex items-center gap-5 rounded-3xl border border-border bg-card px-6 py-4">
@@ -214,19 +222,42 @@ function HomePage() {
         <section className="rounded-3xl border border-border bg-card p-7">
           <div className="flex items-center justify-between">
             <h2 className="text-xl">Today's calendar</h2>
-            <span className="text-sm text-muted-foreground">0 events</span>
+            <span className="text-sm text-muted-foreground">
+              {calendar.data?.connected ? `${events.length} events` : "not connected"}
+            </span>
           </div>
-          <p className="mt-16 mb-16 text-center text-sm text-muted-foreground">
-            Nothing on your calendar — a clear day ahead.
-          </p>
+          {events.length === 0 ? (
+            <p className="mt-16 mb-16 text-center text-sm text-muted-foreground">
+              {calendar.isLoading
+                ? "Loading your day…"
+                : calendar.data && !calendar.data.connected
+                  ? "Connect Google Calendar in Settings to see your day."
+                  : "Nothing on your calendar — a clear day ahead."}
+            </p>
+          ) : (
+            <ul className="mt-5 space-y-4">
+              {events.slice(0, 5).map((event) => (
+                <li key={event.id} className="flex gap-4">
+                  <span className="w-16 shrink-0 font-serif text-sm text-muted-foreground">
+                    {event.allDay ? "All day" : formatTime(event.start)}
+                  </span>
+                  <p className="min-w-0 truncate text-sm">{event.title}</p>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         <section className="rounded-3xl border border-border bg-card p-7">
           <h2 className="text-xl">Inbox</h2>
-          <p className="mt-1 text-sm text-muted-foreground">201 unread · 6 worth your attention</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {inbox.data?.connected
+              ? `${inbox.data.unreadTotal} unread · ${messages.length} worth your attention`
+              : "Connect Gmail in Settings to see your inbox."}
+          </p>
           <ul className="mt-5 space-y-5">
-            {inbox.map((m) => (
-              <li key={m.subject} className="flex gap-4">
+            {messages.map((m) => (
+              <li key={m.id} className="flex gap-4">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-warm text-warm-foreground">
                   <Mail className="h-4 w-4" />
                 </span>

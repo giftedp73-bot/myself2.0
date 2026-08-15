@@ -1,6 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { Brand } from "@/components/brand";
 import { Calendar, Home, LogOut, MessageCircle, Settings, Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const nav = [
   { to: "/home", label: "Home", icon: Home },
@@ -11,6 +13,15 @@ const nav = [
 ] as const;
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    queryClient.clear();
+    await navigate({ to: "/" });
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-background/90 backdrop-blur">
@@ -28,13 +39,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 <span className="hidden sm:inline">{item.label}</span>
               </Link>
             ))}
-            <Link
-              to="/"
+            <button
+              type="button"
+              onClick={() => void signOut()}
               aria-label="Sign out"
               className="ml-1 rounded-full p-2 text-muted-foreground transition-colors hover:text-foreground"
             >
               <LogOut className="h-4 w-4" />
-            </Link>
+            </button>
           </nav>
         </div>
       </header>

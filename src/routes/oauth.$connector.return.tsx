@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { completeConnectorConnect } from "@/lib/connectors.functions";
 
 export const Route = createFileRoute("/oauth/$connector/return")({
   ssr: false,
@@ -23,8 +22,12 @@ function OAuthReturn() {
     const params = new URLSearchParams(window.location.search);
     const notify = (
       type: "appUserConnectorOAuthComplete" | "appUserConnectorOAuthFailed",
+      code?: string | null,
     ) => {
-      window.opener?.postMessage({ type, connectorId: connector }, window.location.origin);
+      window.opener?.postMessage(
+        { type, connectorId: connector, code: code ?? null },
+        window.location.origin,
+      );
       window.close();
     };
 
@@ -43,12 +46,7 @@ function OAuthReturn() {
       notify("appUserConnectorOAuthFailed");
       return;
     }
-    void completeConnectorConnect({ data: { code } })
-      .then(() => notify("appUserConnectorOAuthComplete"))
-      .catch(() => {
-        setMessage("Could not finish the connection.");
-        notify("appUserConnectorOAuthFailed");
-      });
+    notify("appUserConnectorOAuthComplete", code);
   }, [connector]);
 
   return (

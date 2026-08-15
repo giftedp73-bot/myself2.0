@@ -1,5 +1,6 @@
+/** Resolves with the one-time OAuth code (or null when no key is issued). */
 export function waitForOAuthCompletion(popup: Window, connectorId: string) {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<string | null>((resolve, reject) => {
     let poll: number | undefined;
     const cleanup = () => {
       window.removeEventListener("message", onMessage);
@@ -15,7 +16,7 @@ export function waitForOAuthCompletion(popup: Window, connectorId: string) {
         return;
       cleanup();
       if (type === "appUserConnectorOAuthComplete") {
-        resolve();
+        resolve((event.data?.code as string | null) ?? null);
         return;
       }
       popup.close();
