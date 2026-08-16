@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mic, Plus, Send, Sparkles, Type } from "lucide-react";
+import { Loader2, Mic, Plus, Send, Sparkles, Type } from "lucide-react";
+import { toast } from "sonner";
 import { AppLayout } from "@/components/app-layout";
+import { sendChatMessage } from "@/lib/chat.functions";
 
 export const Route = createFileRoute("/_authenticated/chat")({
   head: () => ({
@@ -24,38 +26,39 @@ export const Route = createFileRoute("/_authenticated/chat")({
 
 type Message = { id: number; role: "user" | "assistant"; text: string; time: string };
 
-const initial: Message[] = [
-  { id: 1, role: "user", text: "Hello", time: "14:40" },
-  {
-    id: 2,
-    role: "assistant",
-    text: 'Morning. Nothing on your calendar. Your inbox shows a Google security alert for me2point00@gmail.com and a "top Gamma user" email. You also have a couple of LinkedIn job alerts and a MyRunway ad.\n\nWhat\'s the plan for today to move your business priorities forward?',
-    time: "14:40",
-  },
-];
+function now() {
+  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 
 function Chat() {
-  const [messages, setMessages] = useState<Message[]>(initial);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [mode, setMode] = useState<"text" | "voice">("text");
+  const [sending, setSending] = useState(false);
 
-  function send(e: React.FormEvent) {
+  async function send(e: React.FormEvent) {
     e.preventDefault();
     const text = draft.trim();
-    if (!text) return;
-    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    setMessages((m) => [
-      ...m,
-      { id: Date.now(), role: "user", text, time },
-      {
-        id: Date.now() + 1,
-        role: "assistant",
-        text: "Noted. I'll fold that into your next briefing and keep an eye on it against your Business priority.",
-        time,
-      },
-    ]);
+    if (!text || sending) return;
+    const history = [...messages, { id: Date.now(), role: "user" as const, text, time: now() }];
+    setMessages(history);
     setDraft("");
+    setSending(true);
+    try {
+      const { reply } = await sendChatMessage({
+        data: { messages: history.map((m) => ({ role: m.role, content: m.text })) },
+      });
+      setMessages((m) => [
+        ...m,
+        { id: Date.now() + 1, role: "assistant", text: reply, time: now() },
+      ]);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "me2.0 could not answer right now.");
+    } finally {
+      setSending(false);
+    }
   }
+
 
   return (
     <AppLayout>
